@@ -16,11 +16,11 @@ class FieldTest < MiniTest::Unit::TestCase
   def test_document_has_a_field
     field = MongoParserRB::Field.new(:"custom_data.tracked_users")
     assert field.in_document?(:custom_data => {:tracked_users => 10})
-    assert !field.in_document?(:not_custom_data => {:tracked_users => 10})
+    refute field.in_document?(:not_custom_data => {:tracked_users => 10})
 
     field = MongoParserRB::Field.new(:"session_count")
     assert field.in_document?(:custom_data => {:tracked_users => 10}, :session_count => 5)
-    assert !field.in_document?(:custom_data => {:tracked_users => 10})
+    refute field.in_document?(:custom_data => {:tracked_users => 10})
   end
 
 end
