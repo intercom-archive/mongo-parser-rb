@@ -137,6 +137,9 @@ class QueryTest < MiniTest::Unit::TestCase
   def test_operator_data_type_mismatch
     query = MongoParserRB::Query.parse(:array_key => {:$in => [1]})
     refute query.matches_document?(:array_key => "hey")
+
+    query = MongoParserRB::Query.parse(:array_key => {:$in => [1]})
+    refute query.matches_document?(:array_key => 1)
   end
 
   def test_date_range

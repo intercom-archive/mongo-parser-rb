@@ -63,7 +63,7 @@ module MongoParserRB
         when *Expression.equality_operators
           evaluate_equality(document)
         end
-      rescue NoMethodError
+      rescue NoMethodError, TypeError
         false
       end
 
