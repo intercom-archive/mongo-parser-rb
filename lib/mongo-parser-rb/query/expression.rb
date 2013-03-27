@@ -93,7 +93,11 @@ module MongoParserRB
         when :$ne
           value_for_field != @arguments
         when :$nin
-          (value_for_field & @arguments).length.zero?
+          if value_for_field.kind_of?(Array)
+            (value_for_field & @arguments).length.zero?
+          else
+            !@arguments.include?(value_for_field)
+          end
         end
       end
 
@@ -117,7 +121,11 @@ module MongoParserRB
         when :$lte
           value_for_field <= @arguments
         when :$in
-          (value_for_field & @arguments).length > 0
+          if value_for_field.kind_of?(Array)
+            (value_for_field & @arguments).length > 0
+          else
+            @arguments.include?(value_for_field)
+          end
         end
       end
 
