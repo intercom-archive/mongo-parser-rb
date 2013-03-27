@@ -23,4 +23,18 @@ class FieldTest < MiniTest::Unit::TestCase
     refute field.in_document?(:custom_data => {:tracked_users => 10})
   end
 
+  def test_returning_array_element
+    field = MongoParserRB::Field.new(:"something.array.0")
+    assert_equal 1, field.value_in_document(:something => {:array => [1,2]})
+  end
+
+  def test_returning_hash_in_array
+    field = MongoParserRB::Field.new(:"something.array.0.key")
+    document = {:something => {:array => [{:key => 'hello world'}, {:key => 'bye world'}]}}
+    assert_equal 'hello world', field.value_in_document(document)
+
+    field = MongoParserRB::Field.new(:"something.array.1.key")
+    assert_equal 'bye world', field.value_in_document(document)
+  end
+
 end
