@@ -85,7 +85,7 @@ class QueryTest < MiniTest::Unit::TestCase
 
 
   def test_or
-    query = MongoParserRB::Query.parse(:$or => [ 
+    query = MongoParserRB::Query.parse(:$or => [
       {:string_key => "abc"},
       {:integer_key => {:$gt => 5}}
     ])
@@ -133,6 +133,16 @@ class QueryTest < MiniTest::Unit::TestCase
     query = MongoParserRB::Query.parse(:string_key => nil)
     assert query.matches_document?(:string_key => nil)
     refute query.matches_document?(:string_key => 'hey')
+  end
+
+  def test_no_key_eq_nil
+    query = MongoParserRB::Query.parse(:string_key => nil)
+    assert query.matches_document?(:something_else => "hello")
+  end
+
+  def test_no_key_in_unknown
+    query = MongoParserRB::Query.parse(:string_key => {:$in=>[nil, "", "null", "nil"]})
+    assert query.matches_document?(:something_else => "hello")
   end
 
   def test_regex_eq

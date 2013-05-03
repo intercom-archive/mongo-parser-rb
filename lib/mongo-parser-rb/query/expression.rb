@@ -6,13 +6,13 @@ module MongoParserRB
 
         def conjunction_operators
           @conjunction_operators ||= [
-            :$and, 
+            :$and,
             :$or
           ]
         end
 
         def conjunction_operator?(operator)
-          conjunction_operators.include?(operator) 
+          conjunction_operators.include?(operator)
         end
 
         def negative_equality_operators
@@ -47,7 +47,7 @@ module MongoParserRB
         @operator = operator
 
         if Expression.conjunction_operator? @operator
-          @arguments = args[0] 
+          @arguments = args[0]
         else
           @field = Field.new(args[0])
           @arguments = args[1]
@@ -103,7 +103,6 @@ module MongoParserRB
 
       def evaluate_equality(document)
         value_for_field = @field.value_in_document(document)
-        return false if !value_for_field && !@field.in_document?(document)
 
         case @operator
         when :$eq
@@ -128,7 +127,6 @@ module MongoParserRB
           end
         end
       end
-
     end
   end
 end
