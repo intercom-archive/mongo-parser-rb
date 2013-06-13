@@ -85,12 +85,12 @@ module MongoParserRB
       def evaluate_negative_equality(document)
         value_for_field = @field.value_in_document(document)
 
-        # Mongo negative equality operators return true when
-        # the specified field does not exist on a document.
-        return true if !value_for_field && !@field.in_document?(document)
-
         case @operator
         when :$ne
+          # Mongo negative equality operators return true when
+          # the specified field does not exist on a document.
+          return true if !value_for_field && !@field.in_document?(document)
+
           value_for_field != @arguments
         when :$nin
           if value_for_field.kind_of?(Array)
