@@ -122,6 +122,12 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:array_key => [1,4,5])
   end
 
+  def test_nil_by_absence_nin 
+    query = MongoParserRB::Query.parse(:"custom_data.value" => {:$nin => [nil]})
+    assert query.matches_document?(:custom_data => {:value => 5})
+    refute query.matches_document?({})
+  end
+
   def test_integer_in
     query = MongoParserRB::Query.parse(:integer_key => {:$in => [1,2]})
     assert query.matches_document?(:integer_key => 1)
