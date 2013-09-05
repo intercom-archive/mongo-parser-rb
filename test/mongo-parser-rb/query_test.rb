@@ -177,7 +177,15 @@ class QueryTest < MiniTest::Unit::TestCase
 
   def test_eq_as_in_substitute
     query = MongoParserRB::Query.parse(:array_key => 1)
-    assert query.matches_document?(:array_key => [1])
+    assert query.matches_document?(:array_key => [1,2])
+
+    query = MongoParserRB::Query.parse(:array_key => [1])
+    refute query.matches_document?(:array_key => [1,2])
+  end
+
+  def test_ne_as_nin_substitue
+    query = MongoParserRB::Query.parse(:array_key => {:$ne => 1})
+    assert query.matches_document?(:array_key => [2,3])
   end
 
 end
