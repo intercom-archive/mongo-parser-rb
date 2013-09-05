@@ -175,4 +175,9 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:date_key => Time.new(1996,2,13,0,0,0))
   end
 
+  def test_eq_as_in_substitute
+    query = MongoParserRB::Query.parse(:array_key => 1)
+    assert query.matches_document?(:array_key => [1])
+  end
+
 end
