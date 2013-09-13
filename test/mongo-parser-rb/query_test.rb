@@ -191,4 +191,9 @@ class QueryTest < MiniTest::Unit::TestCase
     assert query.matches_document?(:array_key => [1,2])
   end
 
+  def test_datatype_mismatch
+    query = MongoParserRB::Query.parse(:integer_key => {:$gt => 5})
+    refute query.matches_document?(:integer_key => "hello")
+  end
+    
 end

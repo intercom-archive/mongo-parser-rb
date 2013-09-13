@@ -134,6 +134,8 @@ module MongoParserRB
             @arguments.include?(value_for_field)
           end
         end
+      rescue ArgumentError
+        false
       end
     end
   end
