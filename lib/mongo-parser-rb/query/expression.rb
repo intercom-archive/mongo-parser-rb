@@ -29,7 +29,8 @@ module MongoParserRB
             :$lt,
             :$gte,
             :$lte,
-            :$in
+            :$in,
+            :$regex
           ] | negative_equality_operators
         end
 
@@ -133,6 +134,8 @@ module MongoParserRB
           else
             @arguments.include?(value_for_field)
           end
+        when :$regex
+          !!(value_for_field =~ Regexp.new(Regexp.escape(@arguments)))
         end
       rescue ArgumentError
         false
