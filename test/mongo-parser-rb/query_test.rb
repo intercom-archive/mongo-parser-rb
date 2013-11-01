@@ -135,6 +135,14 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:integer_key => 3)
   end
 
+  def test_integer_in_and_ne
+    query = MongoParserRB::Query.parse(:integer_key => {:$in => [1,2,3], :$ne => 3})
+    assert query.matches_document?(:integer_key => 1)
+    assert query.matches_document?(:integer_key => 2)
+    refute query.matches_document?(:integer_key => 3)
+    refute query.matches_document?(:integer_key => 4)
+  end
+
   def test_eq_nil
     query = MongoParserRB::Query.parse(:string_key => nil)
     assert query.matches_document?(:string_key => nil)
