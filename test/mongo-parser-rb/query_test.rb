@@ -168,6 +168,13 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:string_key => 'world')
   end
 
+  def test_string_regex
+    query = MongoParserRB::Query.parse(:string_key => {:$regex=>'hello'})
+    assert query.matches_document?(:string_key => 'hello world')
+    refute query.matches_document?(:string_key => 'world')
+  end
+
+
   def test_operator_data_type_mismatch
     query = MongoParserRB::Query.parse(:array_key => {:$in => [1]})
     refute query.matches_document?(:array_key => "hey")

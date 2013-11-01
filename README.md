@@ -33,6 +33,14 @@ q.matches_document?({:email => "ben@intercom.io"}) => false
 q.matches_document?({:email => "ciaran@gmail.com"}) => true
 ```
 
+Basic support for `$regex` is also available:
+
+```ruby
+q = MongoParserRB::Query.parse({:"email" => {:"$regex"=> 'gmail'})
+q.matches_document?({:email => "ben@intercom.io"}) => false
+q.matches_document?({:email => "ciaran@gmail.com"}) => true
+```
+
 MongoDB's dot field syntax can be used:
 
 ```ruby
