@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class QueryTest < MiniTest::Unit::TestCase
-
   def test_raises_if_not_parsed
     assert_raises(MongoParserRB::NotParsedError) do
       query = MongoParserRB::Query.new(:integer_key => 10)
@@ -26,6 +25,22 @@ class QueryTest < MiniTest::Unit::TestCase
     assert query.matches_document?(:integer_key => 11)
     refute query.matches_document?(:integer_key => 10)
     refute query.matches_document?(:integer_key => 9)
+  end
+
+  def test_integer_not_gt
+    query = MongoParserRB::Query.parse(:integer_key => {:$not => {:$gt => 10}})
+    refute query.matches_document?(:integer_key => 11)
+    assert query.matches_document?(:integer_key => 10)
+    assert query.matches_document?(:integer_key => 9)
+    assert query.matches_document?({})
+  end
+
+  def test_integer_not_gt_or_lt
+    query = MongoParserRB::Query.parse(:integer_key => {:$not => {:$gt => 8, :$lt => 10}})
+    assert query.matches_document?(:integer_key => 6)
+    assert query.matches_document?(:integer_key => 11)
+    refute query.matches_document?(:integer_key => 9)
+    assert query.matches_document?({})
   end
 
   def test_integer_lt
@@ -168,6 +183,12 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:string_key => 'world')
   end
 
+  def test_regex_not_eq
+    query = MongoParserRB::Query.parse(:string_key => {:$not => /hello/})
+    assert query.matches_document?(:string_key => 'world')
+    refute query.matches_document?(:string_key => 'hello world')
+  end
+
   def test_operator_data_type_mismatch
     query = MongoParserRB::Query.parse(:array_key => {:$in => [1]})
     refute query.matches_document?(:array_key => "hey")
@@ -203,5 +224,4 @@ class QueryTest < MiniTest::Unit::TestCase
     query = MongoParserRB::Query.parse(:integer_key => {:$gt => 5})
     refute query.matches_document?(:integer_key => "hello")
   end
-    
 end

@@ -23,7 +23,7 @@ q.matches_document?({:comment_count => 11}) => false
 q.matches_document?({:comment_count => 6}) => true
 ```
 
-The following operators are currently supported: `$and`, `$or`, `$in`, `$nin`, `$ne`, `$gt`, `$gte`, `$lt`, `$lte`.
+The following operators are currently supported: `$and`, `$or`, `$in`, `$nin`, `$ne`, `$gt`, `$gte`, `$lt`, `$lte`, `$not`.
 
 Regexps are also supported:
 

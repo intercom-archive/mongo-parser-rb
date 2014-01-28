@@ -41,12 +41,18 @@ module MongoParserRB
         parse_sub_expression(key, value, field)
       end)
     end
-    
+
     def parse_sub_expression(key, value, field = nil)
       if Expression.operator?(key)
         case key 
         when *Expression.conjunction_operators
           Expression.new(key, value.map { |v| parse_root_expression(v) })
+        when *Expression.inversion_operators
+          if value.kind_of?(Hash)
+            Expression.new(:$not, field, parse_root_expression(value, field))
+          else
+            Expression.new(:$not, field, Expression.new(:$eq, field, value))
+          end
         else
           Expression.new(key, field, value)
         end

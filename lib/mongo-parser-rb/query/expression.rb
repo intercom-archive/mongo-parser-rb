@@ -4,6 +4,16 @@ module MongoParserRB
 
       class << self
 
+        def inversion_operators
+          @inversion_operators ||= [
+            :$not
+          ]
+        end
+
+        def inversion_operator?(operator)
+          inversion_operators.include?(operator)
+        end
+
         def conjunction_operators
           @conjunction_operators ||= [
             :$and,
@@ -38,7 +48,7 @@ module MongoParserRB
         end
 
         def operator?(operator)
-          equality_operator?(operator) || conjunction_operator?(operator)
+          equality_operator?(operator) || conjunction_operator?(operator) || inversion_operator?(operator)
         end
 
       end
@@ -46,7 +56,7 @@ module MongoParserRB
       def initialize(operator, *args)
         @operator = operator
 
-        if Expression.conjunction_operator? @operator
+        if Expression.conjunction_operator?(@operator)
           @arguments = args[0]
         else
           @field = Field.new(args[0])
@@ -62,12 +72,21 @@ module MongoParserRB
           evaluate_negative_equality(document)
         when *Expression.equality_operators
           evaluate_equality(document)
+        when *Expression.inversion_operators
+          evaluate_inversion(document)
         end
       rescue NoMethodError, TypeError
         false
       end
 
       private
+
+      def evaluate_inversion(document)
+        # Mongo negative equality operators return true when
+        # the specified field does not exist on a document.
+        return true if !@field.value_in_document(document) && !@field.in_document?(document)
+        !@arguments.evaluate(document)
+      end
 
       def evaluate_conjunction(document)
         case @operator
