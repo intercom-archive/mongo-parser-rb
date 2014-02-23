@@ -53,6 +53,10 @@ module MongoParserRB
           else
             Expression.new(:$not, field, Expression.new(:$eq, field, value))
           end
+        when *Expression.elemMatch_operators
+          Expression.new(:$elemMatch, field, value.to_a.map do |(key, value)|
+            parse_sub_expression(key, value)
+          end)
         else
           Expression.new(key, field, value)
         end

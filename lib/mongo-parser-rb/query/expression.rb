@@ -46,9 +46,19 @@ module MongoParserRB
         def equality_operator?(operator)
           equality_operators.include?(operator)
         end
+        
+        def elemMatch_operators
+          @elemMatch_operators ||= [
+            :$elemMatch
+          ]
+        end
+        
+        def elemMatch_operator?(operator)
+          elemMatch_operators.include?(operator)
+        end
 
         def operator?(operator)
-          equality_operator?(operator) || conjunction_operator?(operator) || inversion_operator?(operator)
+          equality_operator?(operator) || conjunction_operator?(operator) || inversion_operator?(operator) || elemMatch_operator?(operator)
         end
 
       end
@@ -74,6 +84,8 @@ module MongoParserRB
           evaluate_equality(document)
         when *Expression.inversion_operators
           evaluate_inversion(document)
+        when *Expression.elemMatch_operators
+          evaluate_elemMatch(document)
         end
       rescue NoMethodError, TypeError
         false
@@ -81,6 +93,14 @@ module MongoParserRB
 
       private
 
+      def evaluate_elemMatch(document)
+        @field.value_in_document(document).any? do |subdocument|
+          @arguments.all? do | arg |
+            arg.evaluate(subdocument)
+          end
+        end
+      end
+      
       def evaluate_inversion(document)
         # Mongo negative equality operators return true when
         # the specified field does not exist on a document.
