@@ -95,7 +95,7 @@ module MongoParserRB
 
       def evaluate_elemMatch(document)
         @field.value_in_document(document).any? do |subdocument|
-          @arguments.all? do | arg |
+          @arguments.all? do |arg|
             arg.evaluate(subdocument)
           end
         end
