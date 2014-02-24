@@ -47,6 +47,6 @@ module MongoParserRB
         new_document
       end
     end
-        
+
   end
 end
