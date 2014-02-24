@@ -36,5 +36,5 @@ class FieldTest < MiniTest::Unit::TestCase
     field = MongoParserRB::Field.new(:"something.array.1.key")
     assert_equal 'bye world', field.value_in_document(document)
   end
-  
+
 end
