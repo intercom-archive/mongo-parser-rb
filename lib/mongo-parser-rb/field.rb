@@ -11,6 +11,7 @@ module MongoParserRB
       @field_parts.reduce(document) do |value, field|
         case value
         when Array
+          return [] if value.empty?
           value[field.to_i]
         when Hash
           value[field]
