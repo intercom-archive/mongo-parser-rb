@@ -27,6 +27,11 @@ class FieldTest < MiniTest::Unit::TestCase
     field = MongoParserRB::Field.new(:"something.array.0")
     assert_equal 1, field.value_in_document(:something => {:array => [1,2]})
   end
+  
+  def test_returning_empty_array
+    field = MongoParserRB::Field.new(:"something.array.name")
+    assert_equal [], field.value_in_document(:something => {:array => []})
+  end
 
   def test_returning_hash_in_array
     field = MongoParserRB::Field.new(:"something.array.0.key")

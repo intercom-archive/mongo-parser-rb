@@ -142,6 +142,11 @@ class QueryTest < MiniTest::Unit::TestCase
     assert query.matches_document?(:custom_data => {:value => 5})
     refute query.matches_document?({})
   end
+  
+  def test_nil_by_empty
+    query = MongoParserRB::Query.parse({:"user_event_summaries.name" => {:$ne => "second-support"}})
+    assert query.matches_document?({"user_event_summaries" => []})
+  end
 
   def test_integer_in
     query = MongoParserRB::Query.parse(:integer_key => {:$in => [1,2]})
