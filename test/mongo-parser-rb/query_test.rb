@@ -113,6 +113,18 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:integer_key => 5)
   end
 
+  def test_nested_or
+    query = MongoParserRB::Query.parse({
+      :$or=>[{ :name => 'cormac' }, { :name => 'john' }],
+      :anonymous => { :$in => [false, nil] },
+      :app_id => 6
+    })
+    assert query.matches_document?(:name => 'cormac', :app_id => 6)
+    assert query.matches_document?(:name => 'john', :app_id => 6)
+    refute query.matches_document?(:name => 'john', :app_id => 7)
+    refute query.matches_document?(:name => 'john', :app_id => 6, :anonymous => true)
+  end
+
   def test_boolean_eq
     query = MongoParserRB::Query.parse(:boolean_key => false)
     assert query.matches_document?(:boolean_key => false)
