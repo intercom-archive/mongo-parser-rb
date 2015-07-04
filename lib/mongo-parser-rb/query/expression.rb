@@ -2,63 +2,28 @@ module MongoParserRB
   class Query
     class Expression
 
+      INVERSION_OPERATORS = [:$not].freeze
+      CONJUNCTION_OPERATORS = [:$and, :$or].freeze
+      NEGATIVE_EQUALITY_OPERATORS = [:$nin, :$ne].freeze
+      EQUALITY_OPERATORS = [:$eq, :$gt, :$lt, :$gte, :$lte, :$in, :$nin, :$ne].freeze
+      ELEM_MATCH_OPERATORS = [:$elemMatch].freeze
+
       class << self
 
-        def inversion_operators
-          @inversion_operators ||= [
-            :$not
-          ]
-        end
-
         def inversion_operator?(operator)
-          inversion_operators.include?(operator)
-        end
-
-        def conjunction_operators
-          @conjunction_operators ||= [
-            :$and,
-            :$or
-          ]
+          INVERSION_OPERATORS.include?(operator)
         end
 
         def conjunction_operator?(operator)
-          conjunction_operators.include?(operator)
+          CONJUNCTION_OPERATORS.include?(operator)
         end
 
-        def negative_equality_operators
-          @negative_equality_operators ||= [
-            :$nin,
-            :$ne
-          ]
-        end
-
-        def equality_operators
-          @equality_operators ||= [
-            :$eq,
-            :$gt,
-            :$lt,
-            :$gte,
-            :$lte,
-            :$in
-          ] | negative_equality_operators
-        end
-
-        def equality_operator?(operator)
-          equality_operators.include?(operator)
-        end
-        
-        def elemMatch_operators
-          @elemMatch_operators ||= [
-            :$elemMatch
-          ]
-        end
-        
         def elemMatch_operator?(operator)
-          elemMatch_operators.include?(operator)
+          ELEM_MATCH_OPERATORS.include?(operator)
         end
 
         def operator?(operator)
-          equality_operator?(operator) || conjunction_operator?(operator) || inversion_operator?(operator) || elemMatch_operator?(operator)
+          EQUALITY_OPERATORS.include?(operator) || conjunction_operator?(operator) || inversion_operator?(operator) || elemMatch_operator?(operator)
         end
 
       end
@@ -76,15 +41,15 @@ module MongoParserRB
 
       def evaluate(document)
         case @operator
-        when *Expression.conjunction_operators
+        when *Expression::CONJUNCTION_OPERATORS
           evaluate_conjunction(document)
-        when *Expression.negative_equality_operators
+        when *Expression::NEGATIVE_EQUALITY_OPERATORS
           evaluate_negative_equality(document)
-        when *Expression.equality_operators
+        when *Expression::EQUALITY_OPERATORS
           evaluate_equality(document)
-        when *Expression.inversion_operators
+        when *Expression::INVERSION_OPERATORS
           evaluate_inversion(document)
-        when *Expression.elemMatch_operators
+        when *Expression::ELEM_MATCH_OPERATORS
           evaluate_elemMatch(document)
         end
       rescue NoMethodError, TypeError
@@ -100,7 +65,7 @@ module MongoParserRB
           end
         end
       end
-      
+
       def evaluate_inversion(document)
         # Mongo negative equality operators return true when
         # the specified field does not exist on a document.
@@ -130,7 +95,7 @@ module MongoParserRB
           # the specified field does not exist on a document.
           return true if !value_for_field && !@field.in_document?(document)
 
-          if value_for_field.kind_of?(Array) && 
+          if value_for_field.kind_of?(Array) &&
              !@arguments.kind_of?(Array)
             !value_for_field.include?(@arguments)
           else
@@ -150,9 +115,10 @@ module MongoParserRB
 
         case @operator
         when :$eq
+          # return true if value_for_field == @argument
           if @arguments.kind_of?(Regexp)
             !!(value_for_field =~ @arguments)
-          elsif value_for_field.kind_of?(Array) && 
+          elsif value_for_field.kind_of?(Array) &&
                 !@arguments.kind_of?(Array)
             value_for_field.include?(@arguments)
           else
