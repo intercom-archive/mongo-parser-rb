@@ -60,7 +60,7 @@ module MongoParserRB
     end
 
     def parse_sub_expression(key, value, field = nil)
-      if Expression.operator?(key)
+      if Expression::ALL_OPERATORS.include?(key)
         case key
         when *Expression::CONJUNCTION_OPERATORS
           Expression.new(key, value.map { |v| parse_root_expression(v) })

@@ -7,31 +7,12 @@ module MongoParserRB
       NEGATIVE_EQUALITY_OPERATORS = [:$nin, :$ne].freeze
       EQUALITY_OPERATORS = [:$eq, :$gt, :$lt, :$gte, :$lte, :$in, :$nin, :$ne].freeze
       ELEM_MATCH_OPERATORS = [:$elemMatch].freeze
-
-      class << self
-
-        def inversion_operator?(operator)
-          INVERSION_OPERATORS.include?(operator)
-        end
-
-        def conjunction_operator?(operator)
-          CONJUNCTION_OPERATORS.include?(operator)
-        end
-
-        def elemMatch_operator?(operator)
-          ELEM_MATCH_OPERATORS.include?(operator)
-        end
-
-        def operator?(operator)
-          EQUALITY_OPERATORS.include?(operator) || conjunction_operator?(operator) || inversion_operator?(operator) || elemMatch_operator?(operator)
-        end
-
-      end
+      ALL_OPERATORS = [:$eq, :$gt, :$lt, :$gte, :$lte, :$in, :$nin, :$ne, :$and, :$or, :$not, :$elemMatch].freeze
 
       def initialize(operator, *args)
         @operator = operator
 
-        if Expression.conjunction_operator?(@operator)
+        if CONJUNCTION_OPERATORS.include?(@operator)
           @arguments = args[0]
         else
           @field = Field.new(args[0])
