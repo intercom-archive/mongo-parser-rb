@@ -31,10 +31,27 @@ module MongoParserRB
     # @return [Boolean]
     def matches_document?(document)
       raise NotParsedError, "Query not parsed (run parse!)" if @expression_tree.nil?
+
+      document = stringify_keys(document)
       @expression_tree.evaluate(document)
     end
-    
+
     private
+
+    def stringify_keys(document)
+      document.reduce({}) do |new_document, (k,v)|
+        new_document[k.to_s] = case v
+        when Hash
+          stringify_keys(v)
+        when Array
+          v.map { |e| e.kind_of?(Hash) ? stringify_keys(e) : e }
+        else
+          v
+        end
+
+        new_document
+      end
+    end
 
     def parse_root_expression(query, field = nil)
       Expression.new(:$and, query.to_a.map do |(key, value)|
@@ -43,17 +60,17 @@ module MongoParserRB
     end
 
     def parse_sub_expression(key, value, field = nil)
-      if Expression.operator?(key)
-        case key 
-        when *Expression.conjunction_operators
+      if Expression::ALL_OPERATORS.include?(key)
+        case key
+        when *Expression::CONJUNCTION_OPERATORS
           Expression.new(key, value.map { |v| parse_root_expression(v) })
-        when *Expression.inversion_operators
+        when *Expression::INVERSION_OPERATORS
           if value.kind_of?(Hash)
             Expression.new(:$not, field, parse_root_expression(value, field))
           else
             Expression.new(:$not, field, Expression.new(:$eq, field, value))
           end
-        when *Expression.elemMatch_operators
+        when *Expression::ELEM_MATCH_OPERATORS
           Expression.new(:$elemMatch, field, value.to_a.map do |(key, value)|
             parse_sub_expression(key, value)
           end)

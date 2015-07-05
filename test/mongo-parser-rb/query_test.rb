@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class QueryTest < MiniTest::Unit::TestCase
+class QueryTest < Minitest::Test
   def test_raises_if_not_parsed
     assert_raises(MongoParserRB::NotParsedError) do
       query = MongoParserRB::Query.new(:integer_key => 10)
@@ -149,12 +149,12 @@ class QueryTest < MiniTest::Unit::TestCase
     refute query.matches_document?(:array_key => [1,4,5])
   end
 
-  def test_nil_by_absence_nin 
+  def test_nil_by_absence_nin
     query = MongoParserRB::Query.parse(:"custom_data.value" => {:$nin => [nil]})
     assert query.matches_document?(:custom_data => {:value => 5})
     refute query.matches_document?({})
   end
-  
+
   def test_nil_by_empty
     query = MongoParserRB::Query.parse({:"user_event_summaries.name" => {:$ne => "second-support"}})
     assert query.matches_document?({"user_event_summaries" => []})
@@ -236,19 +236,19 @@ class QueryTest < MiniTest::Unit::TestCase
     query = MongoParserRB::Query.parse(:array_key => {:$ne => [1]})
     assert query.matches_document?(:array_key => [1,2])
   end
-  
+
   def test_elemMatch
     query = MongoParserRB::Query.parse({:user_event_summaries => {:$elemMatch=> {:name => "second-support", :count => 3}}})
     refute query.matches_document?(:user_event_summaries => [{:name => "first-support", :count => 3}, {:name => "second-support", :count => 4}])
     assert query.matches_document?(:user_event_summaries => [{:name => "first-support", :count => 4}, {:name => "second-support", :count => 3}])
   end
-  
+
   def test_elemMatch_inequality
     query = MongoParserRB::Query.parse(:user_event_summaries => {:$elemMatch=> {:count => {:$ne => 2}, :name => "second-support"}})
     refute query.matches_document?(:user_event_summaries => [{:name => "first-support", :count => 3}, {:name => "second-support", :count => 2}])
     assert query.matches_document?(:user_event_summaries => [{:name => "first-support", :count => 3}, {:name => "second-support", :count => 3}])
   end
-  
+
   def test_datatype_mismatch
     query = MongoParserRB::Query.parse(:integer_key => {:$gt => 5})
     refute query.matches_document?(:integer_key => "hello")
