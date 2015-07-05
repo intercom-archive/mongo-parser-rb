@@ -76,8 +76,7 @@ module MongoParserRB
           # the specified field does not exist on a document.
           return true if !value_for_field && !@field.in_document?(document)
 
-          if value_for_field.kind_of?(Array) &&
-             !@arguments.kind_of?(Array)
+          if value_for_field.kind_of?(Array) && !@arguments.kind_of?(Array)
             !value_for_field.include?(@arguments)
           else
             value_for_field != @arguments
@@ -96,11 +95,9 @@ module MongoParserRB
 
         case @operator
         when :$eq
-          # return true if value_for_field == @argument
           if @arguments.kind_of?(Regexp)
             !!(value_for_field =~ @arguments)
-          elsif value_for_field.kind_of?(Array) &&
-                !@arguments.kind_of?(Array)
+          elsif value_for_field.kind_of?(Array) && !@arguments.kind_of?(Array)
             value_for_field.include?(@arguments)
           else
             value_for_field == @arguments
