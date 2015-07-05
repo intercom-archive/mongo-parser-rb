@@ -9,10 +9,11 @@ Benchmark.bm() do |bm|
       MongoParserRB::Query.parse({
         :$or => [
           { aaa: { :$gt => 20 } },
-          { bbb: 10 },
+          { bbb: {:$not => {:$gt => 10 }} },
           { ccc: 11 },
           { ddd: 12 },
-          { eee: 13 }
+          { eee: 13 },
+          { :fff => { :$in => [1] } }
         ]
       })
     end
