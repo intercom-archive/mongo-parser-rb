@@ -33,7 +33,7 @@ module MongoParserRB
       raise NotParsedError, "Query not parsed (run parse!)" if @expression_tree.nil?
       @expression_tree.evaluate(document)
     end
-
+    
     private
 
     def parse_root_expression(query, field = nil)
@@ -43,17 +43,17 @@ module MongoParserRB
     end
 
     def parse_sub_expression(key, value, field = nil)
-      if Expression::ALL_OPERATORS.include?(key)
-        case key
-        when *Expression::CONJUNCTION_OPERATORS
+      if Expression.operator?(key)
+        case key 
+        when *Expression.conjunction_operators
           Expression.new(key, value.map { |v| parse_root_expression(v) })
-        when *Expression::INVERSION_OPERATORS
+        when *Expression.inversion_operators
           if value.kind_of?(Hash)
             Expression.new(:$not, field, parse_root_expression(value, field))
           else
             Expression.new(:$not, field, Expression.new(:$eq, field, value))
           end
-        when *Expression::ELEM_MATCH_OPERATORS
+        when *Expression.elemMatch_operators
           Expression.new(:$elemMatch, field, value.to_a.map do |(key, value)|
             parse_sub_expression(key, value)
           end)
