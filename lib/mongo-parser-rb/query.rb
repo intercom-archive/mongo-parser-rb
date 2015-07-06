@@ -31,6 +31,8 @@ module MongoParserRB
     # @return [Boolean]
     def matches_document?(document)
       raise NotParsedError, "Query not parsed (run parse!)" if @expression_tree.nil?
+
+      document = stringify_keys(document)
       @expression_tree.evaluate(document)
     end
 
@@ -64,6 +66,21 @@ module MongoParserRB
         parse_root_expression(value, key)
       else
         Expression.new(:$eq, key, value)
+      end
+    end
+
+    def stringify_keys(document)
+      document.reduce({}) do |new_document, (k,v)|
+        new_document[k.to_s] = case v
+        when Hash
+          stringify_keys(v)
+        when Array
+          v.map { |e| e.kind_of?(Hash) ? stringify_keys(e) : e }
+        else
+          v
+        end
+
+        new_document
       end
     end
 
