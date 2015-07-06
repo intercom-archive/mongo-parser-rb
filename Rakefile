@@ -9,9 +9,3 @@ Rake::TestTask.new("test") do |test|
   test.warning = false
   test.verbose = true
 end
-
-
-desc "Run some performance tests"
-task :perf do
-  require_relative 'performance/perf.rb'
-end
