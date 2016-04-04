@@ -1,5 +1,7 @@
 # MongoParserRB
 
+[![Build Status](https://travis-ci.org/intercom/mongo-parser-rb.svg?branch=master)](https://travis-ci.org/intercom/mongo-parser-rb)
+
 Parse and evaluate MongoDB queries in Ruby. MongoParserRB is useful for checking if already loaded documents match a query, without the overhead of making requests to the database.
 
 Parse a query:
