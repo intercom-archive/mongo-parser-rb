@@ -125,6 +125,36 @@ class QueryTest < Minitest::Test
     refute query.matches_document?(:name => 'john', :app_id => 6, :anonymous => true)
   end
 
+  def test_deeply_nested_or
+    query = MongoParserRB::Query.parse({
+      :$and=>[{ :name => 'cormac' }, { :$or => [{ :"custom_data.tracked_users" => 1 }, { :"custom_data.tracked_users" => {:$gt => 3} }] }],
+      :app_id => 6
+    })
+    assert query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 1})
+    assert query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 4})
+    refute query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 2})
+  end
+
+  def test_deeply_nested_not_or
+    query = MongoParserRB::Query.parse({
+      :$and=>[{ :name => 'cormac' }, { :$not => { :$or => [{ :"custom_data.tracked_users" => 1 }, { :"custom_data.tracked_users" => {:$gt => 3} }] }}],
+      :app_id => 6
+    })
+    refute query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 1})
+    refute query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 4})
+    assert query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 2})
+  end
+
+  def test_deeply_nested_not_and
+    query = MongoParserRB::Query.parse({
+      :$and=>[{ :name => 'cormac' }, { :$not => { :$and => [{ :"custom_data.tracked_users" => 1 }, { :"custom_data.foo" => 7 }] }}],
+      :app_id => 6
+    })
+    refute query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 1, :foo => 7})
+    assert query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 4})
+    assert query.matches_document?(:name => 'cormac', :app_id => 6, :custom_data => { :tracked_users => 2})
+  end
+
   def test_boolean_eq
     query = MongoParserRB::Query.parse(:boolean_key => false)
     assert query.matches_document?(:boolean_key => false)
